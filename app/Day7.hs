@@ -54,4 +54,5 @@ dirs r@(Node (D _) xs) = r : concatMap dirs [a | a@(Node (D d) _) <- xs]
 sz (Node (F _ s) _) = s
 sz (Node (D _) xs) = sum $ sz <$> xs
 
-solve = readFile "input/day7.1" >>= print . minimum . filter (>= 4359867) . map sz . dirs . go . fromJust . parseMaybe (many command) . T.pack
+solve1 = readFile "input/day7.1" >>= print . sum . filter (<= 100000) . map sz . dirs . go . fromJust . parseMaybe (many command) . T.pack
+solve2 = readFile "input/day7.1" >>= print . minimum . filter (>= 4359867) . map sz . dirs . go . fromJust . parseMaybe (many command) . T.pack
