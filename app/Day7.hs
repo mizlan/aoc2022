@@ -1,12 +1,13 @@
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ImportQualifiedPost #-}
 
 module Day7 where
 
 import Data.Foldable (foldl')
 import Data.Maybe (fromJust)
 import Data.Text (Text (..))
-import qualified Data.Text as T
+import Data.Text qualified as T
 import Data.Tree
 import Data.Tree.Zipper
 import Text.Megaparsec
@@ -15,7 +16,6 @@ import Text.Megaparsec.Char.Lexer (decimal)
 
 type Parse = Parsec () Text
 
-type Size = Integer
 data I = F Text Integer | D Text
   deriving (Show, Eq)
 
@@ -39,9 +39,6 @@ command = do
     pure $ F f x
   line = T.pack <$> many (noneOf (Just '\n')) <* single '\n'
 
-parseI :: Text -> [Command]
-parseI = fromJust . parseMaybe (many command)
-
 go :: [Command] -> Tree I
 go = tree . root . foldl' (flip doCmd) (fromTree $ mkdir "/") . tail
  where
@@ -57,4 +54,4 @@ dirs r@(Node (D _) xs) = r : concatMap dirs [a | a@(Node (D d) _) <- xs]
 sz (Node (F _ s) _) = s
 sz (Node (D _) xs) = sum $ sz <$> xs
 
-solve = readFile "input/day7.1" >>= print . minimum . filter (>= 4359867) . map sz . dirs . go . parseI . T.pack
+solve = readFile "input/day7.1" >>= print . minimum . filter (>= 4359867) . map sz . dirs . go . fromJust . parseMaybe (many command) . T.pack
