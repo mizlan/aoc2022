@@ -30,6 +30,8 @@ executable aoc
     Day2
     Day3
     Day4
+    Day5
+    Day7
 
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:
@@ -41,6 +43,9 @@ executable aoc
     , split
     , text
     , vector
+    , mtl
+    , rosezipper
+    , pretty-tree
 
   hs-source-dirs:   app
   default-language: Haskell2010
