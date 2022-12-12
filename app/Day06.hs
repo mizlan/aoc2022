@@ -1,4 +1,4 @@
-module Day6 where
+module Day06 where
 
 import Control.Monad (ap)
 import Data.List (findIndex, nub, tails)

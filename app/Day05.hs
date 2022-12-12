@@ -1,4 +1,4 @@
-module Day5 where
+module Day05 where
 
 import Data.Char (isDigit, isUpper)
 import Data.List (foldl', transpose)

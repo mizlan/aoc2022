@@ -1,7 +1,7 @@
 {-# LANGUAGE ImportQualifiedPost #-}
 {-# LANGUAGE PostfixOperators #-}
 
-module Day4 where
+module Day04 where
 
 import Control.Applicative hiding (many, some)
 import Data.Text (Text (..))

@@ -1,6 +1,6 @@
 {-# LANGUAGE PostfixOperators #-}
 
-module Day3 where
+module Day03 where
 
 import Data.List.Extra (maximumOn)
 import Data.Maybe (mapMaybe)

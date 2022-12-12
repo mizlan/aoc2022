@@ -1,7 +1,7 @@
 {-# LANGUAGE ImportQualifiedPost #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Day1 where
+module Day01 where
 
 import Data.List
 import Data.Text (Text (..))

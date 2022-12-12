@@ -2,7 +2,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ImportQualifiedPost #-}
 
-module Day7 where
+module Day07 where
 
 import Data.Foldable (foldl')
 import Data.Maybe (fromJust)
