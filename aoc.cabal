@@ -34,7 +34,9 @@ executable aoc
     Day06
     Day07
     Day08
+    Day09
     Day10
+    Day12
 
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:
@@ -53,6 +55,7 @@ executable aoc
   default-extensions:
     ImportQualifiedPost
     ViewPatterns
+    LexicalNegation
 
   hs-source-dirs:     app
   default-language:   Haskell2010
