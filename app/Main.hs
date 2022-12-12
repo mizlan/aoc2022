@@ -3,4 +3,4 @@ module Main where
 import Day10
 
 main :: IO ()
-main = solve1
+main = solve2

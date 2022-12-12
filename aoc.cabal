@@ -49,6 +49,6 @@ executable aoc
     , text
     , vector
 
-  default-extensions: ViewPatterns
+  default-extensions: ViewPatterns, ImportQualifiedPost
   hs-source-dirs:     app
   default-language:   Haskell2010
