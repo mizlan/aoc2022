@@ -37,6 +37,7 @@ executable aoc
     Day09
     Day10
     Day12
+    Day13
 
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:
@@ -51,6 +52,7 @@ executable aoc
     , split
     , text
     , vector
+    , regexpr
 
   default-extensions:
     ImportQualifiedPost
