@@ -38,21 +38,24 @@ executable aoc
     Day10
     Day12
     Day13
+    Day14
+    Fun
 
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:
   build-depends:
-    , base         ^>=4.16.3.0
+    , base               ^>=4.16.3.0
     , containers
     , extra
     , megaparsec
     , mtl
     , pretty-tree
+    , regex-applicative
+    , regexpr
     , rosezipper
     , split
     , text
     , vector
-    , regexpr
 
   default-extensions:
     ImportQualifiedPost
