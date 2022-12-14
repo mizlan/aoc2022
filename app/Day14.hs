@@ -1,33 +1,25 @@
+{-# LANGUAGE TupleSections #-}
+
 module Day14 where
 
 import Data.List
 import Data.Maybe
 import Data.Set (Set (..))
 import Data.Set qualified as S
-import Debug.Trace
 import Text.Megaparsec
 import Text.Megaparsec.Char
 import Text.Megaparsec.Char.Lexer
 
-type Parse = Parsec () String
+type Parser = Parsec () String
 
-genGraph :: [(Int, Int)] -> Set (Int, Int)
-genGraph xs = S.fromList $ concat $ zipWith rng xs (tail xs)
- where
-  rng (a, b) (c, d)
-    | a == c = zip (repeat c) [min b d .. max b d]
-    | otherwise = zip [min a c .. max a c] (repeat b)
+options (x, y) = [(x, y + 1), (x - 1, y + 1), (x + 1, y + 1)]
 
-simulate2 :: Int -> Set (Int, Int) -> Maybe (Set (Int, Int))
-simulate2 fl g = go (500, 0)
+simulate2 stop g = go (500, 0)
  where
   go p@(x, y)
     | p `S.member` g = Nothing
-    | y == fl = pure g'
-    | (x, y + 1) `S.notMember` g = go (x, y + 1)
-    | (x - 1, y + 1) `S.notMember` g = go (x - 1, y + 1)
-    | (x + 1, y + 1) `S.notMember` g = go (x + 1, y + 1)
-    | otherwise = pure g'
+    | stop y g = pure g'
+    | otherwise = maybe (pure g') go $ find (`S.notMember` g) (options p)
    where
     g' = p `S.insert` g
 
@@ -36,41 +28,27 @@ simulate1 g = go (500, 0)
  where
   go p@(x, y)
     | (x, y) `S.member` g || S.null (S.filter ((> y) . snd) g) = Nothing
-    | (x, y + 1) `S.notMember` g = go (x, y + 1)
-    | (x - 1, y + 1) `S.notMember` g = go (x - 1, y + 1)
-    | (x + 1, y + 1) `S.notMember` g = go (x + 1, y + 1)
-    | otherwise = pure $ (x, y) `S.insert` g
+    | otherwise = maybe (pure $ p `S.insert` g) go $ find (`S.notMember` g) (options p)
 
-s1 :: [String] -> Int
-s1 xs = findSand 0 graph
- where
-  graph = p xs
-  fl = (+ 1) . maximum $ map snd $ S.toList graph
-  findSand n g = case simulate1 g of
-    Nothing -> n
-    Just g' -> findSand (n + 1) g'
+s1 = sum . unfoldr (fmap (1,) . simulate1)
 
-s2 :: [String] -> Int
-s2 xs = findSand 0 graph
+s2 graph = sum $ unfoldr (fmap (1,) . simulate2 (const . (== fl))) graph
  where
-  graph = p xs
   fl = (+ 1) . maximum $ map snd $ S.toList graph
-  findSand n g = case simulate2 fl g of
-    Nothing -> n
-    Just g' -> findSand (n + 1) g'
 
 p :: [String] -> Set (Int, Int)
 p xs = graph
  where
-  graph = foldl1' S.union $ genGraph <$> inp
+  graph = foldl1' S.union $ map genGraph inp
   inp = fromJust . parseMaybe ln <$> xs
   ln = t `sepBy1` string " -> "
-  t :: Parse (Int, Int)
-  t = do
-    x <- decimal
-    char ','
-    y <- decimal
-    pure (x, y)
+  t :: Parser (Int, Int)
+  t = (,) <$> decimal <* char ',' <*> decimal
+  genGraph xs = S.fromList . concat $ zipWith rng xs (tail xs)
+  rng (a, b) (c, d)
+    | a == c = zip (repeat c) [min b d .. max b d]
+    | otherwise = zip [min a c .. max a c] (repeat b)
 
-solve1 = print . s1 . lines =<< readFile "input/day14.1"
-solve2 = print . s2 . lines =<< readFile "input/day14.1"
+common s = print . s . p . lines =<< readFile "input/day14.1"
+solve1 = common s1
+solve2 = common s2
