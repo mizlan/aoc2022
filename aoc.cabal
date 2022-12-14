@@ -37,9 +37,9 @@ executable aoc
     Day09
     Day10
     Day12
+    Day11
     Day13
     Day14
-    Fun
 
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:
