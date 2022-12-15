@@ -60,6 +60,7 @@ executable aoc
 
   default-extensions:
     ImportQualifiedPost
+    TupleSections
     ViewPatterns
     LexicalNegation
 

@@ -1,13 +1,9 @@
-{-# LANGUAGE TupleSections #-}
-
 module Day15 where
 
-import Control.Monad
 import Data.List hiding ((\\))
 import Data.Maybe
 import Data.Set (Set (..), (\\))
 import Data.Set qualified as S
-import Debug.Trace
 import Text.Regex.Applicative (RE (..))
 import Text.Regex.Applicative qualified as R
 import Text.Regex.Applicative.Common qualified as R
@@ -54,7 +50,7 @@ solve1 = print . S.size . foldl1' S.union . map (sensorPicks 2000000) . p . line
 solve2 = do
   inp <- p . lines <$> readFile "input/day15.1"
   let ys = map (snd . fst) inp
-  let lb = minimum $ 0 : ys
-  let ub = maximum $ 4000000 : ys
+  let lb = minimum ys
+  let ub = maximum ys
   let (x, y) = head $ mapMaybe (\yc -> fmap (,yc) . breakCont' $ concatMap (sensorPicks' yc) inp) [lb .. ub]
   print $ 4000000 * x + y
