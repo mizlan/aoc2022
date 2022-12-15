@@ -4,50 +4,47 @@ import Data.List hiding ((\\))
 import Data.Maybe
 import Data.Set (Set (..), (\\))
 import Data.Set qualified as S
-import Text.Regex.Applicative (RE (..))
 import Text.Regex.Applicative qualified as R
 import Text.Regex.Applicative.Common qualified as R
 
-d (a, b) (c, d) = abs (c - a) + abs (d - b)
-
-findAll :: RE s a -> [s] -> [a]
+findAll :: R.RE s a -> [s] -> [a]
 findAll = unfoldr . R.findFirstPrefix . (R.few R.anySym *>)
 
-p = map ((\[a, b, c, d] -> ((a, b), (c, d))) . findAll (R.signed R.decimal))
-
-data CP = Start {getPos :: Int} | End {getPos :: Int}
+data IntervalEndpoint = Start {getPos :: Int} | End {getPos :: Int}
   deriving (Show, Eq, Ord)
 
-breakCont' :: [CP] -> Maybe Int
-breakCont' xs = go 0 s
+firstGap :: [IntervalEndpoint] -> Maybe Int
+firstGap xs = go 0 $ sortOn getPos xs
  where
   go 1 ((End i) : (Start j) : _) | j - i > 1 = pure $ i + 1
   go depth ((Start i) : xs) = go (depth + 1) xs
   go depth ((End i) : xs) = go (depth - 1) xs
   go _ _ = Nothing
-  s = sortOn getPos xs
 
-sensorPicks' :: Int -> ((Int, Int), (Int, Int)) -> [CP]
-sensorPicks' k (s@(x, y), p@(a, b)) = if flex >= 0 then ss else []
- where
-  totalDist = d s p
-  dy = abs (k - y)
-  flex = totalDist - dy
-  ss = [Start $ x - flex, End $ x + flex]
+flex k s@(x, y) p@(a, b) = abs (x - a) + abs (y - b) - abs (k - y)
 
 sensorPicks :: Int -> ((Int, Int), (Int, Int)) -> Set Int
-sensorPicks k (s@(x, y), p@(a, b)) = if b == k then ss \\ S.singleton a else ss
+sensorPicks k (s@(x, y), p@(a, b))
+  | b == k = ss \\ S.singleton a
+  | otherwise = ss
  where
-  totalDist = d s p
-  dy = abs (k - y)
-  flex = totalDist - dy
-  ss = S.fromList [x - flex .. x + flex]
+  f = flex k s p
+  ss = S.fromList [x - f .. x + f]
 
-solve1 = print . S.size . foldl1' S.union . map (sensorPicks 2000000) . p . lines =<< readFile "input/day15.1"
+sensorPicks' :: Int -> ((Int, Int), (Int, Int)) -> [IntervalEndpoint]
+sensorPicks' k (s@(x, y), p@(a, b))
+  | f >= 0 = [Start $ x - f, End $ x + f]
+  | otherwise = []
+ where
+  f = flex k s p
+
+parseInput = map ((\[a, b, c, d] -> ((a, b), (c, d))) . findAll (R.signed R.decimal))
+
+solve1 = print . S.size . foldl1' S.union . map (sensorPicks 2000000) . parseInput . lines =<< readFile "input/day15.1"
 solve2 = do
-  inp <- p . lines <$> readFile "input/day15.1"
+  inp <- parseInput . lines <$> readFile "input/day15.1"
   let ys = map (snd . fst) inp
   let lb = minimum ys
-  let ub = maximum ys
-  let (x, y) = head $ mapMaybe (\yc -> fmap (,yc) . breakCont' $ concatMap (sensorPicks' yc) inp) [lb .. ub]
+      ub = maximum ys
+      (x, y) = head $ mapMaybe (\yc -> fmap (,yc) . firstGap $ concatMap (sensorPicks' yc) inp) [lb .. ub]
   print $ 4000000 * x + y
