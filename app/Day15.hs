@@ -8,10 +8,7 @@ import Text.Regex.Applicative (RE (..))
 import Text.Regex.Applicative qualified as R
 import Text.Regex.Applicative.Common qualified as R
 
-d (a, b) (c, d) =
-  let [x, y] = sort [a, c]
-      [w, z] = sort [b, d]
-   in y - x + z - w
+d (a, b) (c, d) = abs (c - a) + abs (d - b)
 
 findAll :: RE s a -> [s] -> [a]
 findAll = unfoldr . R.findFirstPrefix . (R.few R.anySym *>)
