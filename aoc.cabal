@@ -41,6 +41,7 @@ executable aoc
     Day13
     Day14
     Day15
+    Day15pt2Fast
 
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:
