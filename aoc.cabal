@@ -42,6 +42,9 @@ executable aoc
     Day14
     Day15
     Day15pt2Fast
+    Day16
+    Day17
+    Day18
 
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:
@@ -58,6 +61,7 @@ executable aoc
     , split
     , text
     , vector
+    , chimera
 
   default-extensions:
     ImportQualifiedPost
