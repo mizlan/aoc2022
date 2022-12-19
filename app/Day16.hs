@@ -64,7 +64,7 @@ dp graph' = memoizeFix dp'
    where
     (MkNode' s flow conn) = snd $ ls ! cur
     available = map (ls !) $ filter (not . testBit bitmask) [0 .. 14]
-    options = map (\(i, MkNode'{..}) -> f (conn Map.! tag') (idx tag') (setBit bitmask $ idx tag')) available
+    options = map (\(i, MkNode'{..}) -> (30 - time) * flow' + f (conn Map.! tag') (idx tag') (setBit bitmask $ idx tag')) available
      where
       idx t = fromJust $ V.findIndex ((== t) . tag' . snd) ls
 
@@ -75,7 +75,7 @@ selected g = positiveFlowers <&> (\(MkNode s f c) -> MkNode' s f $ Map.filterWit
   transition = conn . (g Map.!)
   isPositive = const . (`Map.member` positiveFlowers)
 
-vis = readFile "input/day16.1" >>= print . gl . lines
+-- vis = readFile "input/day16.1" >>= print . gl . lines
 
 gl :: [String] -> Graph
 gl xs =
@@ -85,3 +85,7 @@ gl xs =
         let (p : ps) = findAll (replicateM 2 (psym isUpper)) ln
         pure (p, MkNode p flow ps)
    in Map.fromList k
+
+solve1' inp = let dpF = dp . selected . gl $ lines inp in dpF
+  
+-- solve1 = readFile "input/day16.1" >>= solve1'
