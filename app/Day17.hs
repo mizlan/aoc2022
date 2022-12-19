@@ -7,7 +7,6 @@ import Data.List.Extra
 import Data.Ord
 import Data.Set (Set (..))
 import Data.Set qualified as S
-import Debug.Trace
 
 shapes =
   [ [(0, 0), (1, 0), (2, 0), (3, 0)]
@@ -19,7 +18,6 @@ shapes =
 
 (.-) x = (x, 0)
 (.|) y = (0, y)
-(|.) :: Ord a => Set a -> [a] -> Set a
 (|.) s l = s `S.union` S.fromList l
 
 instance (Num a, Num b) => Num (a, b) where
@@ -29,15 +27,14 @@ type V2 = (Int, Int)
 
 -- env ! i shall not be empty
 simulate :: (String, Set V2, [[V2]]) -> (String, Set V2, [[V2]])
-simulate (jets, env, shape : ss) = traceShow "SIMULATING" $ go jets env (2, highest + 4)
+simulate (jets, env, shape : ss) = go jets env (2, highest + 4)
  where
   highest = maximum $ map snd $ S.toList env
-  go (j : js) env p@(x, y) = traceShow "GOING" $
-    case (all isValid jetPts, all isValid (down <$> jetPts), all isValid (down <$> noJetPts)) of
-      (True, True, _) -> go js env (down p')
-      (True, False, _) -> (js, env |. jetPts, ss)
-      (False, _, True) -> go js env (down p)
-      _ -> (js, env |. noJetPts, ss)
+  go (j : js) env p@(x, y) = case (all isValid jetPts, all isValid (down <$> jetPts), all isValid (down <$> noJetPts)) of
+    (True, True, _) -> go js env (down p')
+    (True, False, _) -> (js, env |. jetPts, ss)
+    (False, _, True) -> go js env (down p)
+    _ -> (js, env |. noJetPts, ss)
    where
     p'@(x', y') = p + if j == '<' then (-1 .-) else (1 .-)
     jetPts = (+ p') <$> shape
@@ -57,4 +54,5 @@ solve1 = do
   -- pure ">>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>" >>= traverse_ print . reverse . transpose . fmap shower . fmap (take 10000 . reverse) . V.toList . s1
   -- inp >>= traverse_ print . reverse . transpose . fmap shower . fmap (take 10000 . reverse) . S.toList . s1
   inp >>= print . maximum . map snd . S.toList . s1
-  -- (print . maximum . map snd . S.toList . s1) ">>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>"
+
+-- (print . maximum . map snd . S.toList . s1) ">>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>"
