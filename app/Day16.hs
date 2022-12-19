@@ -7,7 +7,6 @@ import Data.Bits
 import Data.Char
 import Data.Chimera
 import Data.Chimera.ContinuousMapping
-import Data.Foldable
 import Data.Functor
 import Data.List
 import Data.Map (Map (..))
@@ -17,7 +16,7 @@ import Data.Sequence (Seq (..), (><))
 import Data.Sequence qualified as Seq
 import Data.Set (Set (..))
 import Data.Set qualified as Set
-import Data.Vector (Vector (..), (!))
+import Data.Vector ((!))
 import Data.Vector qualified as V
 import Text.Regex.Applicative
 import Text.Regex.Applicative.Common
@@ -34,10 +33,9 @@ bfs transition starts end = go Map.empty (Seq.fromList $ zip (repeat 0) starts)
     | otherwise = go (Map.insert x d vis) (xs >< Seq.fromList (zip (repeat $ d + 1) (transition x)))
   go vis _ = vis
 
-type Graph = Map String Node
-
 data Node = MkNode {tag :: String, flow :: Int, conn :: [String]}
-  deriving (Show)
+
+type Graph = Map String Node
 
 data Node' = MkNode'
   { tag' :: String
@@ -57,25 +55,31 @@ dp :: Graph' -> (Word -> Int)
 dp graph' = memoizeFix dp'
  where
   ls = V.fromList . zip [0 ..] $ sortOn tag' (Map.elems graph')
-  dp' :: (Word -> Int) -> Word -> Int
   dp' (uncast -> f) (cast -> (time, cur, bitmask))
-    | time == 0 = 0
+    | time == 30 || null options = 0
     | otherwise = maximum options
    where
     (MkNode' s flow conn) = snd $ ls ! cur
-    available = map (ls !) $ filter (not . testBit bitmask) [0 .. 14]
-    options = map (\(i, MkNode'{..}) -> (30 - time) * flow' + f (conn Map.! tag') (idx tag') (setBit bitmask $ idx tag')) available
+    available = map (ls !) $ filter (not . testBit bitmask) [1 .. 15]
+    options =
+      mapMaybe
+        ( \(i, MkNode'{..}) ->
+            let time' = time + conn Map.! tag' + 1
+             in if time' > 30
+                  then Nothing
+                  else pure $ (30 - time') * flow' + f time' (idx tag') (setBit bitmask $ idx tag')
+        )
+        available
      where
       idx t = fromJust $ V.findIndex ((== t) . tag' . snd) ls
 
 selected :: Graph -> Graph'
-selected g = positiveFlowers <&> (\(MkNode s f c) -> MkNode' s f $ Map.filterWithKey isPositive $ bfs transition [s] (const False))
+selected g = starts <&> (\(MkNode s f c) -> MkNode' s f $ Map.filterWithKey isPositive $ bfs transition [s] (const False))
  where
   positiveFlowers = Map.filter ((> 0) . flow) g
+  starts = Map.singleton "AA" (g Map.! "AA") `Map.union` positiveFlowers
   transition = conn . (g Map.!)
   isPositive = const . (`Map.member` positiveFlowers)
-
--- vis = readFile "input/day16.1" >>= print . gl . lines
 
 gl :: [String] -> Graph
 gl xs =
@@ -86,6 +90,9 @@ gl xs =
         pure (p, MkNode p flow ps)
    in Map.fromList k
 
-solve1' inp = let dpF = dp . selected . gl $ lines inp in dpF
-  
--- solve1 = readFile "input/day16.1" >>= solve1'
+solve1' inp =
+  let graph = gl $ lines inp
+      dpF = uncast . dp $ selected graph
+   in dpF 0 0 0
+
+solve1 = readFile "input/day16.1" >>= print . solve1'
