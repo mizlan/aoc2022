@@ -39,7 +39,7 @@ s2 graph = sum $ unfoldr (fmap (1,) . simulate2 (const . (== fl))) graph
 p :: [String] -> Set (Int, Int)
 p xs = graph
  where
-  graph = foldl1' S.union $ map genGraph inp
+  graph = S.unions $ map genGraph inp
   inp = fromJust . parseMaybe ln <$> xs
   ln = t `sepBy1` string " -> "
   t :: Parser (Int, Int)

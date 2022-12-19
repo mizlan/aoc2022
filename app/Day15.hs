@@ -40,7 +40,7 @@ sensorPicks' k (s@(x, y), p@(a, b))
 
 parseInput = map ((\[a, b, c, d] -> ((a, b), (c, d))) . findAll (R.signed R.decimal))
 
-solve1 = print . S.size . foldl1' S.union . map (sensorPicks 2000000) . parseInput . lines =<< readFile "input/day15.1"
+solve1 = print . S.size . S.unions . map (sensorPicks 2000000) . parseInput . lines =<< readFile "input/day15.1"
 solve2 = do
   inp <- parseInput . lines <$> readFile "input/day15.1"
   let ys = map (snd . fst) inp
