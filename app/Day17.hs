@@ -32,12 +32,12 @@ simulate :: (String, Set V2, [[V2]]) -> (String, Set V2, [[V2]])
 simulate (jets, env, shape : ss) = traceShow "SIMULATING" $ go jets env (2, highest + 4)
  where
   highest = maximum $ map snd $ S.toList env
-  go :: [Char] -> Set V2 -> (Int, Int) -> (String, Set V2, [[V2]])
-  go (j : js) env p@(x, y) = traceShow "GOING" $ case (all isValid jetPts, all isValid (down <$> jetPts), all isValid (down <$> noJetPts)) of
-    (True, True, _) -> go js env (down p')
-    (True, False, _) -> (js, env |. jetPts, ss)
-    (False, _, True) -> go js env (down p)
-    _ -> (js, env |. noJetPts, ss)
+  go (j : js) env p@(x, y) = traceShow "GOING" $
+    case (all isValid jetPts, all isValid (down <$> jetPts), all isValid (down <$> noJetPts)) of
+      (True, True, _) -> go js env (down p')
+      (True, False, _) -> (js, env |. jetPts, ss)
+      (False, _, True) -> go js env (down p)
+      _ -> (js, env |. noJetPts, ss)
    where
     p'@(x', y') = p + if j == '<' then (-1 .-) else (1 .-)
     jetPts = (+ p') <$> shape
