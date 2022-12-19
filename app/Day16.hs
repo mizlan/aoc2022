@@ -20,6 +20,7 @@ import Data.Vector ((!))
 import Data.Vector qualified as V
 import Text.Regex.Applicative
 import Text.Regex.Applicative.Common
+import Data.Tuple.Extra
 
 findAll = unfoldr . findFirstPrefix . (few anySym *>)
 trimap f (a, b, c) = (f a, f b, f c)
@@ -49,7 +50,7 @@ cast :: Word -> (Int, Int, Int)
 cast = trimap wordToInt . fromZCurve3
 
 uncast :: (Word -> Int) -> (Int -> Int -> Int -> Int)
-uncast g x y z = g $ toZCurve3 (intToWord x) (intToWord y) (intToWord z)
+uncast g = curry3 $ g . uncurry3 toZCurve3 . trimap intToWord
 
 dp :: Graph' -> (Word -> Int)
 dp graph' = memoizeFix dp'
