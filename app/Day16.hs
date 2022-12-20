@@ -1,4 +1,5 @@
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE BlockArguments #-}
 
 module Day16 where
 
@@ -16,11 +17,11 @@ import Data.Sequence (Seq (..), (><))
 import Data.Sequence qualified as Seq
 import Data.Set (Set (..))
 import Data.Set qualified as Set
+import Data.Tuple.Extra
 import Data.Vector ((!))
 import Data.Vector qualified as V
 import Text.Regex.Applicative
 import Text.Regex.Applicative.Common
-import Data.Tuple.Extra
 
 findAll = unfoldr . findFirstPrefix . (few anySym *>)
 trimap f (a, b, c) = (f a, f b, f c)
@@ -52,8 +53,8 @@ cast = trimap wordToInt . fromZCurve3
 uncast :: (Word -> Int) -> (Int -> Int -> Int -> Int)
 uncast g = curry3 $ g . uncurry3 toZCurve3 . trimap intToWord
 
-dp :: Graph' -> (Word -> Int)
-dp graph' = memoizeFix dp'
+dp :: Graph' -> Int -> Int -> Int -> Int
+dp graph' = uncast $ memoizeFix dp'
  where
   ls = V.fromList . zip [0 ..] $ sortOn tag' (Map.elems graph')
   dp' (uncast -> f) (cast -> (time, cur, bitmask))
@@ -83,17 +84,15 @@ selected g = starts <&> (\(MkNode s f c) -> MkNode' s f $ Map.filterWithKey isPo
   isPositive = const . (`Map.member` positiveFlowers)
 
 gl :: [String] -> Graph
-gl xs =
-  let k = do
-        ln <- xs
-        let flow = head $ findAll decimal ln
-        let (p : ps) = findAll (replicateM 2 (psym isUpper)) ln
-        pure (p, MkNode p flow ps)
-   in Map.fromList k
+gl xs = Map.fromList do
+  ln <- xs
+  let flow = head $ findAll decimal ln
+  let (p : ps) = findAll (replicateM 2 (psym isUpper)) ln
+  pure (p, MkNode p flow ps)
 
 solve1' inp =
   let graph = gl $ lines inp
-      dpF = uncast . dp $ selected graph
+      dpF = dp $ selected graph
    in dpF 0 0 0
 
 solve1 = readFile "input/day16.1" >>= print . solve1'
