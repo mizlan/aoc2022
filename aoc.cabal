@@ -30,6 +30,8 @@ executable aoc
     Day18
     Day20
     Day21
+    Hydra
+    RE
     Sym
     WrapZip
     WZ
@@ -42,13 +44,14 @@ executable aoc
     , megaparsec
     , mtl
     , pretty-tree
+    , process
     , regex-applicative
     , regexpr
     , rosezipper
     , split
-    , symengine
     , text
     , vector
+    , pager
 
   default-extensions:
     ImportQualifiedPost
